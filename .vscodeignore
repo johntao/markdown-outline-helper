@@ -1,3 +1,4 @@
+# listed files will not be included in the extension package
 .vscode/**
 .vscode-test/**
 src/**

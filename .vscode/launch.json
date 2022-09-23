@@ -15,6 +15,7 @@
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
+			// don't know if this one runs the task resides in tasks.json
 			"preLaunchTask": "${defaultBuildTask}"
 		},
 		{

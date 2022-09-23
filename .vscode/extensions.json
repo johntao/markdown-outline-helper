@@ -1,6 +1,8 @@
 {
 	// See http://go.microsoft.com/fwlink/?LinkId=827846
 	// for the documentation about the extensions.json format
+	// use this file to recommend developers to install these extensions
+	// when the workspace is opened for the first time
 	"recommendations": [
 		"dbaeumer.vscode-eslint"
 	]
