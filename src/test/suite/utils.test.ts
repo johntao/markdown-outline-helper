@@ -2,8 +2,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as tn from '../../treeNode';
-import * as utils from '../../utils';
-import { ItrContext } from '../../utils';
+import * as ut from '../../utils';
 
 suite.skip('Utils print tree', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -64,43 +63,15 @@ suite.skip('Utils print tree', () => {
   - 310
 - 400
 `;
-    const qq = utils.printTree(root);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
-    const ww = utils.printTreeRecur(root);
+    const ww = ut.printTreeRecur(root);
     assert.strictEqual(ww, expected);
   });
 });
-const INDENT = '  ';
 suite.skip('Utils parse tree', () => {
-  const root: tn.IParsable = {
-    level: -1,
-    textDisplay: '',
-    textRaw: '',
-    setDisplayText: function (nodeStack: tn.IParsable[]): void {
-      const node = nodeStack.at(-1)!;
-      node.textDisplay = `${INDENT.repeat(node.level)}- ${node.textRaw}`;
-    },
-    children: []
-  };
-  const itrCtxt: ItrContext = {
-    nodeStack: [root],
-    prevLevel: -1,
-    get parent() { return this.nodeStack.at(-1)!; },
-    get siblings() { return this.parent.children; },
-    createNodeFromText: (line) => {
-      const trim = line.trimStart();
-      const lvl = (line.length - trim.length) / (INDENT.length);
-      const raw = trim.substring(2);
-      const rtn: tn.ISortable = {
-        ...root,
-        textSort: raw
-      };
-      rtn.children = [];
-      rtn.level = lvl;
-      rtn.textRaw = raw;
-      return rtn;
-    }
-  };
+  const root: tn.ISortable = new tn.TreeHierPrint();
+  const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;
     root.children = [];
@@ -111,8 +82,8 @@ suite.skip('Utils parse tree', () => {
     const data = `- 100
 - 200
 - 300`;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, data + '\n');
   });
   test.skip('One level sort', () => {
@@ -123,8 +94,8 @@ suite.skip('Utils parse tree', () => {
 - 300
 - 100
 `;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
   });
   test.skip('Two level', () => {
@@ -134,8 +105,8 @@ suite.skip('Utils parse tree', () => {
 - 200
   - 210
 - 300`;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, data + '\n');
   });
   test.skip('Two level sort', () => {
@@ -156,8 +127,8 @@ suite.skip('Utils parse tree', () => {
   - 220
 - 300
 `;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
   });
   test('Three level', () => {
@@ -177,8 +148,8 @@ suite.skip('Utils parse tree', () => {
 - 300
   - 310
 - 400`;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, data + '\n');
   });
   test('Three level sort', () => {
@@ -215,51 +186,14 @@ suite.skip('Utils parse tree', () => {
   - 310
 - 400
 `;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
   });
 });
 suite('Utils sort special cases (print hierarchy)', () => {
-  const root: tn.ISortable = {
-    level: -1,
-    textDisplay: '',
-    textRaw: '',
-    textSort: '',
-    setDisplayText: function (): void {
-      const isBlockReference = this.textRaw.length === 40
-        && this.textRaw.startsWith('((')
-        && this.textRaw.endsWith('))')
-        && this.textRaw[10] === '-'
-        && this.textRaw[15] === '-';
-      if (!isBlockReference) {
-        const arr = this.textRaw.split(/\[\[|\]\]/);
-        const hasBrackets = arr.length > 2;
-        this.textSort = (hasBrackets ? arr[1] : arr[0]).split('/').pop()!.trim();
-      }
-      this.textDisplay = `${INDENT.repeat(this.level)}- ${this.textRaw}`;
-    },
-    children: []
-  };
-  const itrCtxt: ItrContext = {
-    nodeStack: [root],
-    prevLevel: -1,
-    get parent() { return this.nodeStack.at(-1)!; },
-    get siblings() { return this.parent.children; },
-    createNodeFromText: (line) => {
-      const trim = line.trimStart();
-      const lvl = (line.length - trim.length) / (INDENT.length);
-      const raw = trim.substring(2);
-      const rtn: tn.ISortable = {
-        ...root,
-        textSort: ''
-      };
-      rtn.children = [];
-      rtn.level = lvl;
-      rtn.textRaw = raw;
-      return rtn;
-    }
-  };
+  const root: tn.ISortable = new tn.TreeHierPrint();
+  const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;
     root.children = [];
@@ -284,8 +218,8 @@ suite('Utils sort special cases (print hierarchy)', () => {
   - [[200/ 220]]
 - 300
 `;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
   });
   test('Three level sort', () => {
@@ -324,54 +258,14 @@ suite('Utils sort special cases (print hierarchy)', () => {
   - 310
 - 400
 `;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
   });
 });
 suite.skip('Utils sort special cases (print flat)', () => {
-  const root: tn.ISortable = {
-    level: -1,
-    textDisplay: '',
-    textRaw: '',
-    textSort: '',
-    setDisplayText: function (nodeStack: tn.IParsable[]): void {
-      const isBlockReference = this.textRaw.length === 40
-        && this.textRaw.startsWith('((')
-        && this.textRaw.endsWith('))')
-        && this.textRaw[10] === '-'
-        && this.textRaw[15] === '-';
-      if (isBlockReference) { return; }
-      const arr = this.textRaw.split(/\[\[|\]\]/);
-      const hasBrackets = arr.length > 2;
-      this.textSort = (hasBrackets ? arr[1] : arr[0]).split('/').pop()!.trim();
-      if (utils.isSortable(nodeStack)) {
-        this.textDisplay = nodeStack.map(q => q.textSort.split('/').pop()!.trim()).join('/ ').substring(2);
-      } else {
-        this.textDisplay = nodeStack.map(q => q.textRaw.split('/').pop()!.trim()).join('/ ').substring(2);
-      }
-    },
-    children: []
-  };
-  const itrCtxt: ItrContext = {
-    nodeStack: [root],
-    prevLevel: -1,
-    get parent() { return this.nodeStack.at(-1)!; },
-    get siblings() { return this.parent.children; },
-    createNodeFromText: (line) => {
-      const trim = line.trimStart();
-      const lvl = (line.length - trim.length) / (INDENT.length);
-      const raw = trim.substring(2);
-      const rtn: tn.ISortable = {
-        ...root,
-        textSort: ''
-      };
-      rtn.children = [];
-      rtn.level = lvl;
-      rtn.textRaw = raw;
-      return rtn;
-    }
-  };
+  const root: tn.ISortable = new tn.TreeFlatPrint();
+  const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;
     root.children = [];
@@ -396,8 +290,8 @@ suite.skip('Utils sort special cases (print flat)', () => {
 200/ 220
 300
 `;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
   });
   test('Three level sort', () => {
@@ -434,8 +328,8 @@ suite.skip('Utils sort special cases (print flat)', () => {
 300/ 310
 400
 `;
-    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
-    const qq = utils.printTree(root);
+    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
+    const qq = ut.printTree(root);
     assert.strictEqual(qq, expected);
   });
 });
