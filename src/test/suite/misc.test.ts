@@ -45,7 +45,7 @@ suite.skip('Flatten integration test', () => {
     assert.strictEqual(qq, expected);
   });
 });
-suite('Flatten test', () => {
+suite.skip('Flatten test', () => {
   const root: tn.ISortable = new tn.TreeNodePrintFlat();
   test('Simple', () => {
     const nodeStack = [

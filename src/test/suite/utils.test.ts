@@ -191,7 +191,7 @@ suite.skip('Utils parse tree', () => {
     assert.strictEqual(qq, expected);
   });
 });
-suite('Utils sort special cases (print hierarchy)', () => {
+suite.skip('Utils sort special cases (print hierarchy)', () => {
   const root: tn.ISortable = new tn.TreeNodePrintHier();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {

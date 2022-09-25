@@ -4,7 +4,7 @@ import { isSortable } from "./utils";
 const INDENT_IN = '  ';
 const INDENT_OUT = '  ';
 
-export type TreeNodePrintTypes = 'Flat' | 'Hierarchy';
+export type TreeNodePrintTypes = 'Flat' | 'Hierarchy' | 'ListToHeading' | 'HeadingToList';
 
 export interface IPrintable {
   textDisplay: string
@@ -22,20 +22,41 @@ export interface ISortable extends IParsable {
   kind: TreeNodePrintTypes
 }
 
+const IN_START_LEVEL = 1;
+const IN_INDENT_UNIT = '&emsp;';
+const IN_INDENT_SIZE = 2;
+const TEMPLATE = `(#+) (?:${IN_INDENT_UNIT.repeat(IN_INDENT_SIZE)})*(?:(?:\\d\\.)*\\d)\\) (.+)`;
+const REX = new RegExp(TEMPLATE, 'g');
 export function createTreeNodeFactoryByReadline(type: TreeNodePrintTypes): (line: string) => ISortable {
-  let rtn: ISortable;
-  switch (type) {
-    case 'Flat': rtn = new TreeNodePrintFlat(); break;
-    case 'Hierarchy': rtn = new TreeNodePrintHier(); break;
-    default: throw new Error('Unknown TreeNodeType');
-  }
   return (line: string) => {
-    const trim = line.trimStart();
-    const lvl = (line.length - trim.length) / (INDENT_IN.length);
-    const raw = trim.substring(2);
-    rtn.level = lvl;
-    rtn.textRaw = raw;
-    return rtn;
+    let rtn: ISortable;
+    switch (type) {
+      case 'Flat': rtn = new TreeNodePrintFlat(); break;
+      case 'Hierarchy': rtn = new TreeNodePrintHier(); break;
+      case 'ListToHeading': rtn = new TreeNodePrintHeading(); break;
+      case 'HeadingToList': rtn = new HeadingsPrintHier(); break;
+      default: throw new Error('Unknown TreeNodeType');
+    }
+    switch (type) {
+      case 'Flat':
+      case 'Hierarchy':
+      case 'ListToHeading': {
+        const trim = line.trimStart();
+        const lvl = (line.length - trim.length) / (INDENT_IN.length);
+        const raw = trim.substring(2);
+        rtn.level = lvl;
+        rtn.textRaw = raw;
+        return rtn;
+      }
+      case 'HeadingToList': {
+        const [, hashs, content] = [...line.matchAll(REX)][0];
+        const lvl = hashs.length - 1 - IN_START_LEVEL;
+        rtn.textRaw = content; // format --> "{content}"
+        rtn.level = lvl;
+        return rtn;
+      }
+      default: throw new Error('Unknown TreeNodeType');
+    }
   };
 }
 export function createTreePrintFlat(lvl: number, txt: string): TreeNodePrintFlat {
@@ -89,5 +110,24 @@ export class TreeNodePrintFlat extends TreeNodeBase {
     } else {
       this.textDisplay = nodeStack.map(q => stripOffHierarchy(q.textRaw)).join('/ ').substring(2);
     }
+  }
+}
+const START_LEVEL = 1;
+const INDENT_TOKEN = '&emsp;';
+const INDENT_BASIS = 2;
+export class TreeNodePrintHeading extends TreeNodeBase {
+  kind: TreeNodePrintTypes = 'ListToHeading';
+  setDisplayText(nodeStack: IParsable[]): void {
+    const hashs = '#'.repeat(START_LEVEL + this.level + 1);
+    const indents = INDENT_TOKEN.repeat(INDENT_BASIS * this.level);
+    const digits = nodeStack.slice(0, -1).map(q => q.children.length).join('.');
+    this.textDisplay = `${hashs} ${indents}${digits}) ${this.textRaw}`;
+  }
+}
+const OUT_INDENT = '  ';
+export class HeadingsPrintHier extends TreeNodeBase {
+  kind: TreeNodePrintTypes = 'HeadingToList';
+  setDisplayText(): void {
+    this.textDisplay = `${OUT_INDENT.repeat(this.level)}- ${this.textRaw}`;
   }
 }
