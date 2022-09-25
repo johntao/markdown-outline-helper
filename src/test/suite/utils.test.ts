@@ -70,7 +70,7 @@ suite.skip('Utils print tree', () => {
   });
 });
 suite.skip('Utils parse tree', () => {
-  const root: tn.ISortable = new tn.TreeHierPrint();
+  const root: tn.ISortable = new tn.TreeNodePrintHier();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;
@@ -192,7 +192,7 @@ suite.skip('Utils parse tree', () => {
   });
 });
 suite('Utils sort special cases (print hierarchy)', () => {
-  const root: tn.ISortable = new tn.TreeHierPrint();
+  const root: tn.ISortable = new tn.TreeNodePrintHier();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;
@@ -264,7 +264,7 @@ suite('Utils sort special cases (print hierarchy)', () => {
   });
 });
 suite.skip('Utils sort special cases (print flat)', () => {
-  const root: tn.ISortable = new tn.TreeFlatPrint();
+  const root: tn.ISortable = new tn.TreeNodePrintFlat();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;

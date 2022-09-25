@@ -4,7 +4,7 @@ import { isSortable } from "./utils";
 const INDENT_IN = '  ';
 const INDENT_OUT = '  ';
 
-export type TreeNodeTypes = 'Flat' | 'Hierarchy';
+export type TreeNodePrintTypes = 'Flat' | 'Hierarchy';
 
 export interface IPrintable {
   textDisplay: string
@@ -19,14 +19,14 @@ export interface IParsable extends IPrintable {
 
 export interface ISortable extends IParsable {
   textSort: string
-  kind: TreeNodeTypes
+  kind: TreeNodePrintTypes
 }
 
-export function createNodeFromTextFactory(type: TreeNodeTypes): (line: string) => ISortable {
+export function createTreeNodeFactoryByReadline(type: TreeNodePrintTypes): (line: string) => ISortable {
   let rtn: ISortable;
   switch (type) {
-    case 'Flat': rtn = new TreeFlatPrint(); break;
-    case 'Hierarchy': rtn = new TreeHierPrint(); break;
+    case 'Flat': rtn = new TreeNodePrintFlat(); break;
+    case 'Hierarchy': rtn = new TreeNodePrintHier(); break;
     default: throw new Error('Unknown TreeNodeType');
   }
   return (line: string) => {
@@ -38,8 +38,8 @@ export function createNodeFromTextFactory(type: TreeNodeTypes): (line: string) =
     return rtn;
   };
 }
-export function createTreeFlatPrint(lvl: number, txt: string): TreeFlatPrint {
-  const rtn = new TreeFlatPrint();
+export function createTreePrintFlat(lvl: number, txt: string): TreeNodePrintFlat {
+  const rtn = new TreeNodePrintFlat();
   rtn.level = lvl;
   rtn.textRaw = txt;
   return rtn;
@@ -48,7 +48,7 @@ abstract class TreeNodeBase implements ISortable {
   textSort = '';
   level = -1;
   abstract setDisplayText(nodeStack: IParsable[]): void;
-  abstract kind: TreeNodeTypes;
+  abstract kind: TreeNodePrintTypes;
   textRaw = '';
   textDisplay = '';
   children: IPrintable[] = [];
@@ -68,8 +68,8 @@ function parseTextSort(txt: string) {
 function stripOffHierarchy(txt: string) {
   return txt.split('/').pop()!.trim();
 }
-export class TreeHierPrint extends TreeNodeBase {
-  kind: TreeNodeTypes = 'Hierarchy';
+export class TreeNodePrintHier extends TreeNodeBase {
+  kind: TreeNodePrintTypes = 'Hierarchy';
   setDisplayText(): void {
     const isBlockRef = isBlockReference(this.textRaw);
     if (!isBlockRef) {
@@ -78,8 +78,8 @@ export class TreeHierPrint extends TreeNodeBase {
     this.textDisplay = `${INDENT_OUT.repeat(this.level)}- ${this.textRaw}`;
   }
 }
-export class TreeFlatPrint extends TreeNodeBase {
-  kind: TreeNodeTypes = 'Flat';
+export class TreeNodePrintFlat extends TreeNodeBase {
+  kind: TreeNodePrintTypes = 'Flat';
   setDisplayText(nodeStack: IParsable[]): void {
     const isBlockRef = isBlockReference(this.textRaw);
     if (isBlockRef) { return; }

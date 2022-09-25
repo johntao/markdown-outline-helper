@@ -19,7 +19,7 @@ export function isSortable(siblings: tn.IPrintable[]): siblings is tn.ISortable[
 }
 export function parseTreeItr(this: ItrContext, line: string): void {
   const kind = this.nodeStack[0].kind;
-  const nextNode = tn.createNodeFromTextFactory(kind)(line);
+  const nextNode = tn.createTreeNodeFactoryByReadline(kind)(line);
   let cnt = 0;
   while (++cnt && nextNode.level <= this.prevLevel--) {
     if (cnt > 1 && isSortable(this.siblings)) {

@@ -4,7 +4,7 @@ import * as tn from '../../treeNode';
 import * as ut from '../../utils';
 
 suite.skip('Flatten integration test', () => {
-  const root: tn.ISortable = new tn.TreeFlatPrint();
+  const root: tn.ISortable = new tn.TreeNodePrintFlat();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   test('integration test', () => {
     const data = `- 100
@@ -46,40 +46,40 @@ suite.skip('Flatten integration test', () => {
   });
 });
 suite('Flatten test', () => {
-  const root: tn.ISortable = new tn.TreeFlatPrint();
+  const root: tn.ISortable = new tn.TreeNodePrintFlat();
   test('Simple', () => {
     const nodeStack = [
       root,
-      tn.createTreeFlatPrint(0, '100'),
-      tn.createTreeFlatPrint(1, '110'),
-      tn.createTreeFlatPrint(2, '111'),
+      tn.createTreePrintFlat(0, '100'),
+      tn.createTreePrintFlat(1, '110'),
+      tn.createTreePrintFlat(2, '111'),
     ];
     exam(nodeStack);
   });
   test('Remove LogSeq hierarchy', () => {
     const nodeStack = [
       root,
-      tn.createTreeFlatPrint(0, '100'),
-      tn.createTreeFlatPrint(1, '100/ 110'),
-      tn.createTreeFlatPrint(2, '100/ 110/ 111'),
+      tn.createTreePrintFlat(0, '100'),
+      tn.createTreePrintFlat(1, '100/ 110'),
+      tn.createTreePrintFlat(2, '100/ 110/ 111'),
     ];
     exam(nodeStack);
   });
   test('Brackets', () => {
     const nodeStack = [
       root,
-      tn.createTreeFlatPrint(0, '[[100]]'),
-      tn.createTreeFlatPrint(1, '110'),
-      tn.createTreeFlatPrint(2, '[[111]]#tag1'),
+      tn.createTreePrintFlat(0, '[[100]]'),
+      tn.createTreePrintFlat(1, '110'),
+      tn.createTreePrintFlat(2, '[[111]]#tag1'),
     ];
     exam(nodeStack);
   });
   test('Block reference', () => {
     const nodeStack = [
       root,
-      tn.createTreeFlatPrint(0, '[[100]]'),
-      tn.createTreeFlatPrint(1, '110'),
-      tn.createTreeFlatPrint(2, '((632b1b15-2250-4041-ba65-a11c852b552c))'),
+      tn.createTreePrintFlat(0, '[[100]]'),
+      tn.createTreePrintFlat(1, '110'),
+      tn.createTreePrintFlat(2, '((632b1b15-2250-4041-ba65-a11c852b552c))'),
     ];
     nodeStack[1].setDisplayText(nodeStack.slice(0, 2));
     nodeStack[2].setDisplayText(nodeStack.slice(0, 3));
