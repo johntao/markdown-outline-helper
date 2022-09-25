@@ -71,7 +71,7 @@ suite.skip('Utils print tree', () => {
   });
 });
 const INDENT = '  ';
-suite('Utils parse tree', () => {
+suite.skip('Utils parse tree', () => {
   const root: tn.IParsable = {
     level: -1,
     textDisplay: '',
@@ -91,10 +91,6 @@ suite('Utils parse tree', () => {
       const trim = line.trimStart();
       const lvl = (line.length - trim.length) / (INDENT.length);
       const raw = trim.substring(2);
-      // const arr = raw.split(/\[\[|\]\]/);
-      // // const hasBrackets = arr.length > 2;
-      // // // this.textSort = hasBrackets ? arr[1] : arr[0];
-      // // // this.level = lvl;
       const rtn: tn.ISortable = {
         ...root,
         textSort: raw
@@ -218,6 +214,225 @@ suite('Utils parse tree', () => {
 - 300
   - 310
 - 400
+`;
+    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
+    const qq = utils.printTree(root);
+    assert.strictEqual(qq, expected);
+  });
+});
+suite('Utils sort special cases (print hierarchy)', () => {
+  const root: tn.ISortable = {
+    level: -1,
+    textDisplay: '',
+    textRaw: '',
+    textSort: '',
+    setDisplayText: function (): void {
+      const isBlockReference = this.textRaw.length === 40
+        && this.textRaw.startsWith('((')
+        && this.textRaw.endsWith('))')
+        && this.textRaw[10] === '-'
+        && this.textRaw[15] === '-';
+      if (!isBlockReference) {
+        const arr = this.textRaw.split(/\[\[|\]\]/);
+        const hasBrackets = arr.length > 2;
+        this.textSort = (hasBrackets ? arr[1] : arr[0]).split('/').pop()!.trim();
+      }
+      this.textDisplay = `${INDENT.repeat(this.level)}- ${this.textRaw}`;
+    },
+    children: []
+  };
+  const itrCtxt: ItrContext = {
+    nodeStack: [root],
+    prevLevel: -1,
+    get parent() { return this.nodeStack.at(-1)!; },
+    get siblings() { return this.parent.children; },
+    createNodeFromText: (line) => {
+      const trim = line.trimStart();
+      const lvl = (line.length - trim.length) / (INDENT.length);
+      const raw = trim.substring(2);
+      const rtn: tn.ISortable = {
+        ...root,
+        textSort: ''
+      };
+      rtn.children = [];
+      rtn.level = lvl;
+      rtn.textRaw = raw;
+      return rtn;
+    }
+  };
+  setup(() => {
+    root.level = -1;
+    root.children = [];
+    itrCtxt.nodeStack = [root];
+    itrCtxt.prevLevel = -1;
+  });
+  test('Two level sort (brackets and trailing tags)', () => {
+    const data = `- 100
+  - [[130]]#tag1
+  - 110
+  - 120
+- 200
+  - [[200/ 220]]
+  - 210
+- 300`;
+    const expected = `- 100
+  - 110
+  - 120
+  - [[130]]#tag1
+- 200
+  - 210
+  - [[200/ 220]]
+- 300
+`;
+    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
+    const qq = utils.printTree(root);
+    assert.strictEqual(qq, expected);
+  });
+  test('Three level sort', () => {
+    const data = `- 100
+  - 130
+    - ((632b1b15-2250-4041-ba65-a11c852b552c))
+    - 133
+    - 131
+  - 110
+    - 111
+  - 120
+    - 122
+    - 121
+    - ((632b1b15-2250-4041-ba65-a11c852b552c))
+- 200
+  - 220
+  - 210
+- 300
+  - 310
+- 400`;
+    const expected = `- 100
+  - 110
+    - 111
+  - 120
+    - ((632b1b15-2250-4041-ba65-a11c852b552c))
+    - 121
+    - 122
+  - 130
+    - ((632b1b15-2250-4041-ba65-a11c852b552c))
+    - 131
+    - 133
+- 200
+  - 210
+  - 220
+- 300
+  - 310
+- 400
+`;
+    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
+    const qq = utils.printTree(root);
+    assert.strictEqual(qq, expected);
+  });
+});
+suite.skip('Utils sort special cases (print flat)', () => {
+  const root: tn.ISortable = {
+    level: -1,
+    textDisplay: '',
+    textRaw: '',
+    textSort: '',
+    setDisplayText: function (nodeStack: tn.IParsable[]): void {
+      const isBlockReference = this.textRaw.length === 40
+        && this.textRaw.startsWith('((')
+        && this.textRaw.endsWith('))')
+        && this.textRaw[10] === '-'
+        && this.textRaw[15] === '-';
+      if (isBlockReference) { return; }
+      const arr = this.textRaw.split(/\[\[|\]\]/);
+      const hasBrackets = arr.length > 2;
+      this.textSort = (hasBrackets ? arr[1] : arr[0]).split('/').pop()!.trim();
+      if (utils.isSortable(nodeStack)) {
+        this.textDisplay = nodeStack.map(q => q.textSort.split('/').pop()!.trim()).join('/ ').substring(2);
+      } else {
+        this.textDisplay = nodeStack.map(q => q.textRaw.split('/').pop()!.trim()).join('/ ').substring(2);
+      }
+    },
+    children: []
+  };
+  const itrCtxt: ItrContext = {
+    nodeStack: [root],
+    prevLevel: -1,
+    get parent() { return this.nodeStack.at(-1)!; },
+    get siblings() { return this.parent.children; },
+    createNodeFromText: (line) => {
+      const trim = line.trimStart();
+      const lvl = (line.length - trim.length) / (INDENT.length);
+      const raw = trim.substring(2);
+      const rtn: tn.ISortable = {
+        ...root,
+        textSort: ''
+      };
+      rtn.children = [];
+      rtn.level = lvl;
+      rtn.textRaw = raw;
+      return rtn;
+    }
+  };
+  setup(() => {
+    root.level = -1;
+    root.children = [];
+    itrCtxt.nodeStack = [root];
+    itrCtxt.prevLevel = -1;
+  });
+  test('Two level sort (brackets and trailing tags)', () => {
+    const data = `- 100
+  - [[130]]#tag1
+  - 110
+  - 120
+- 200
+  - [[200/ 220]]
+  - 210
+- 300`;
+    const expected = `100
+100/ 110
+100/ 120
+100/ 130
+200
+200/ 210
+200/ 220
+300
+`;
+    data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
+    const qq = utils.printTree(root);
+    assert.strictEqual(qq, expected);
+  });
+  test('Three level sort', () => {
+    const data = `- 100
+  - 130
+    - ((632b1b15-2250-4041-ba65-a11c852b552c))
+    - 133
+    - 131
+  - 110
+    - 111
+  - 120
+    - 122
+    - 121
+    - ((632b1b15-2250-4041-ba65-a11c852b552c))
+- 200
+  - 220
+  - 210
+- 300
+  - 310
+- 400`;
+    const expected = `100
+100/ 110
+100/ 110/ 111
+100/ 120
+100/ 120/ 121
+100/ 120/ 122
+100/ 130
+100/ 130/ 131
+100/ 130/ 133
+200
+200/ 210
+200/ 220
+300
+300/ 310
+400
 `;
     data.split('\n').forEach(utils.parseTreeItr, itrCtxt);
     const qq = utils.printTree(root);

@@ -11,7 +11,7 @@ export interface ItrContext {
   get parent(): tn.IParsable;
   get siblings(): tn.IPrintable[]
 }
-function isSortable(siblings: tn.IPrintable[]): siblings is tn.ISortable[] {
+export function isSortable(siblings: tn.IPrintable[]): siblings is tn.ISortable[] {
   const node = siblings[0];
   return (node as tn.ISortable).textSort !== undefined;
 }
@@ -20,7 +20,9 @@ export function parseTreeItr(this: ItrContext, line: string): void {
   let cnt = 0;
   while (++cnt && nextNode.level <= this.prevLevel--) {
     if (cnt > 1 && isSortable(this.siblings)) {
-      this.siblings.sort((q, w) => q.textSort.localeCompare(w.textSort));
+      this.siblings.sort((q, w) => {
+        return q ? q.textSort.localeCompare(w.textSort) : -1;
+      });
     }
     this.nodeStack.pop();
   }
