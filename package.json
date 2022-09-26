@@ -10,7 +10,11 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:markdown-outline-helper.helloWorld"
+    "onCommand:markdown-outline-helper.helloWorld",
+    "onCommand:markdown-outline-helper.convertHeadingToList",
+    "onCommand:markdown-outline-helper.convertListToHeading",
+    "onCommand:markdown-outline-helper.sortList",
+    "onCommand:markdown-outline-helper.sortListAndConvertToFlat"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -18,6 +22,22 @@
       {
         "command": "markdown-outline-helper.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "markdown-outline-helper.convertHeadingToList",
+        "title": "Convert headings to list"
+      },
+      {
+        "command": "markdown-outline-helper.convertListToHeading",
+        "title": "Convert list to headings"
+      },
+      {
+        "command": "markdown-outline-helper.sortList",
+        "title": "Sort list"
+      },
+      {
+        "command": "markdown-outline-helper.sortListAndConvertToFlat",
+        "title": "Sort list and convert to flat items"
       }
     ]
   },
