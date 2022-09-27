@@ -12,85 +12,32 @@ export function activate(context: vscode.ExtensionContext) {
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "markdown-outline-helper" is now active!');
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  const d1 = vscode.commands.registerCommand('markdown-outline-helper.helloWorld', () => {
-    // The code you place here will be executed every time your command is executed
-    // Display a message box to the user
-    vscode.window.showInformationMessage('Hello World from markdown-outline-helper!');
-  });
-  const d2 = vscode.commands.registerTextEditorCommand('markdown-outline-helper.convertHeadingToList', (app: vscode.TextEditor) => {
-    const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
-    if (isAllEmpty) { return; }
-    const oldRng = app.selection;
-    const { start } = adjustRange(app, startDir, oldRng.start);
-    const { end } = adjustRange(app, endDir, oldRng.end);
-    const rng = oldRng.with(start, end);
-    app.edit(ed => {
-      const root: tn.ISortable = new tn.HeadingsPrintHier();
-      const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
-      const lines = [...readLines(app, start.line, end.line)];
-      lines.forEach(ut.parseTreeItr, itrCtxt);
-      const qq = ut.printTree(root);
-      ed.delete(rng);
-      ed.insert(start, qq.slice(0, -1));
-    });
-  });
-  const d3 = vscode.commands.registerTextEditorCommand('markdown-outline-helper.convertListToHeading', (app: vscode.TextEditor) => {
-    const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
-    if (isAllEmpty) { return; }
-    const oldRng = app.selection;
-    const { start } = adjustRange(app, startDir, oldRng.start);
-    const { end } = adjustRange(app, endDir, oldRng.end);
-    const rng = oldRng.with(start, end);
-    app.edit(ed => {
-      const root: tn.ISortable = new tn.TreeNodePrintHeading();
-      const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
-      const lines = [...readLines(app, start.line, end.line)];
-      lines.forEach(ut.parseTreeItr, itrCtxt);
-      const qq = ut.printTree(root);
-      ed.delete(rng);
-      ed.insert(start, qq.slice(0, -1));
-    });
-  });
-  const d4 = vscode.commands.registerTextEditorCommand('markdown-outline-helper.sortList', (app: vscode.TextEditor) => {
-    const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
-    if (isAllEmpty) { return; }
-    const oldRng = app.selection;
-    const { start } = adjustRange(app, startDir, oldRng.start);
-    const { end } = adjustRange(app, endDir, oldRng.end);
-    const rng = oldRng.with(start, end);
-    app.edit(ed => {
-      const root: tn.ISortable = new tn.TreeNodePrintHier();
-      const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
-      const lines = [...readLines(app, start.line, end.line)];
-      lines.forEach(ut.parseTreeItr, itrCtxt);
-      const qq = ut.printTree(root);
-      ed.delete(rng);
-      ed.insert(start, qq.slice(0, -1));
-    });
-  });
-  const d5 = vscode.commands.registerTextEditorCommand('markdown-outline-helper.sortListAndConvertToFlat', (app: vscode.TextEditor) => {
-    const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
-    if (isAllEmpty) { return; }
-    const oldRng = app.selection;
-    const { start } = adjustRange(app, startDir, oldRng.start);
-    const { end } = adjustRange(app, endDir, oldRng.end);
-    const rng = oldRng.with(start, end);
-    app.edit(ed => {
-      const root: tn.ISortable = new tn.TreeNodePrintFlat();
-      const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
-      const lines = [...readLines(app, start.line, end.line)];
-      lines.forEach(ut.parseTreeItr, itrCtxt);
-      const qq = ut.printTree(root);
-      ed.delete(rng);
-      ed.insert(start, qq.slice(0, -1));
-    });
-  });
-
-  context.subscriptions.push(d1, d2, d3, d4, d5);
+  context.subscriptions.push(
+    registerEditorCommand('convertHeadingToList', tn.HeadingsPrintHier),
+    registerEditorCommand('convertListToHeading', tn.TreeNodePrintHeading),
+    registerEditorCommand('sortList', tn.TreeNodePrintHier),
+    registerEditorCommand('sortListAndConvertToFlat', tn.TreeNodePrintFlat));
 }
+function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { new(): T } ): vscode.Disposable {
+  return vscode.commands.registerTextEditorCommand(`markdown-outline-helper.${cmdId}`, (app: vscode.TextEditor) => {
+    const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
+    if (isAllEmpty) { return; }
+    const oldRng = app.selection;
+    const { start } = adjustRange(app, startDir, oldRng.start);
+    const { end } = adjustRange(app, endDir, oldRng.end);
+    const newRng = oldRng.with(start, end);
+    app.edit(ed => {
+      const root: tn.ISortable = new type();
+      const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
+      const lines = [...readLines(app, start.line, end.line)];
+      lines.forEach(ut.parseTreeItr, itrCtxt);
+      const text = ut.printTree(root);
+      ed.delete(newRng);
+      ed.insert(start, text.slice(0, -1));
+    });
+  });
+}
+
 function adjustRange(app: vscode.TextEditor, searchDirection: SearchDirection, position: vscode.Position): vscode.Range {
   let ln: number = position.line;
   const doc = app.document;

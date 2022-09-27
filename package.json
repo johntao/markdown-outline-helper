@@ -10,7 +10,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:markdown-outline-helper.helloWorld",
     "onCommand:markdown-outline-helper.convertHeadingToList",
     "onCommand:markdown-outline-helper.convertListToHeading",
     "onCommand:markdown-outline-helper.sortList",
@@ -19,10 +18,6 @@
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "markdown-outline-helper.helloWorld",
-        "title": "Hello World"
-      },
       {
         "command": "markdown-outline-helper.convertHeadingToList",
         "title": "Convert headings to list"
