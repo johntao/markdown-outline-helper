@@ -32,6 +32,9 @@ export function parseTreeItr(this: ItrContext, line: string): void {
   nextNode.setDisplayText(this.nodeStack);
   this.prevLevel = nextNode.level;
 }
+export function parseTreeFromText(txt: string, ctxt: ItrContext): void {
+  txt.split('\n').forEach(parseTreeItr, ctxt);
+}
 export function printTreeRecur(node: tn.IPrintable, rtn: ReturnString = { result: '' }): string {
   if (node.textDisplay) {
     // console.log('' + node);

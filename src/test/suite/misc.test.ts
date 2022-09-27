@@ -40,9 +40,9 @@ suite.skip('Flatten integration test', () => {
 300/ 310
 400
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
 });
 suite.skip('Flatten test', () => {

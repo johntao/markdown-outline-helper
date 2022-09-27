@@ -63,10 +63,10 @@ suite.skip('Utils print tree', () => {
   - 310
 - 400
 `;
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
-    const ww = ut.printTreeRecur(root);
-    assert.strictEqual(ww, expected);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
+    const actual2 = ut.printTreeRecur(root);
+    assert.strictEqual(actual2, expected);
   });
 });
 suite.skip('Utils parse tree', () => {
@@ -82,9 +82,9 @@ suite.skip('Utils parse tree', () => {
     const data = `- 100
 - 200
 - 300`;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, data + '\n');
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, data + '\n');
   });
   test.skip('One level sort', () => {
     const data = `- 200
@@ -94,9 +94,9 @@ suite.skip('Utils parse tree', () => {
 - 300
 - 100
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
   test.skip('Two level', () => {
     const data = `- 100
@@ -105,9 +105,9 @@ suite.skip('Utils parse tree', () => {
 - 200
   - 210
 - 300`;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, data + '\n');
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, data + '\n');
   });
   test.skip('Two level sort', () => {
     const data = `- 100
@@ -127,9 +127,9 @@ suite.skip('Utils parse tree', () => {
   - 220
 - 300
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
   test('Three level', () => {
     const data = `- 100
@@ -148,9 +148,9 @@ suite.skip('Utils parse tree', () => {
 - 300
   - 310
 - 400`;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, data + '\n');
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, data + '\n');
   });
   test('Three level sort', () => {
     const data = `- 100
@@ -186,9 +186,9 @@ suite.skip('Utils parse tree', () => {
   - 310
 - 400
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
 });
 suite.skip('Utils sort special cases (print hierarchy)', () => {
@@ -218,9 +218,9 @@ suite.skip('Utils sort special cases (print hierarchy)', () => {
   - [[200/ 220]]
 - 300
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
   test('Three level sort', () => {
     const data = `- 100
@@ -258,9 +258,9 @@ suite.skip('Utils sort special cases (print hierarchy)', () => {
   - 310
 - 400
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
 });
 suite.skip('Utils sort special cases (print flat)', () => {
@@ -290,9 +290,9 @@ suite.skip('Utils sort special cases (print flat)', () => {
 200/ 220
 300
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
   test('Three level sort', () => {
     const data = `- 100
@@ -328,8 +328,8 @@ suite.skip('Utils sort special cases (print flat)', () => {
 300/ 310
 400
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
 });

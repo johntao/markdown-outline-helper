@@ -40,9 +40,9 @@ suite.skip('Github Outline Helper List to Heading', () => {
 ### &emsp;&emsp;3.1) 310
 ## 4) 400
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
 });
 suite('Github Outline Helper Heading to List', () => {
@@ -82,8 +82,8 @@ suite('Github Outline Helper Heading to List', () => {
   - 310
 - 400
 `;
-    data.split('\n').forEach(ut.parseTreeItr, itrCtxt);
-    const qq = ut.printTree(root);
-    assert.strictEqual(qq, expected);
+    ut.parseTreeFromText(data, itrCtxt);
+    const actual = ut.printTree(root);
+    assert.strictEqual(actual, expected);
   });
 });
