@@ -1,8 +1,7 @@
+import * as configs from './configs';
 import { isSortable } from "./utils";
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-const INDENT_IN = '  ';
-const INDENT_OUT = '  ';
 
 export type TreeNodePrintTypes = 'Flat' | 'Hierarchy' | 'ListToHeading' | 'HeadingToList';
 
@@ -22,18 +21,14 @@ export interface ISortable extends IParsable {
   kind: TreeNodePrintTypes
 }
 
-const IN_START_LEVEL = 1;
-const IN_INDENT_UNIT = '&emsp;';
-const IN_INDENT_SIZE = 2;
-const TEMPLATE = `(#+) (?:${IN_INDENT_UNIT.repeat(IN_INDENT_SIZE)})*(?:(?:\\d\\.)*\\d)\\) (.+)`;
-const REX = new RegExp(TEMPLATE, 'g');
 export function createTreeNodeFactoryByReadline(type: TreeNodePrintTypes): (line: string) => ISortable {
   return (line: string) => {
     let rtn: ISortable;
+    let cfgKey: configs.KeyEnum = '';
     switch (type) {
-      case 'Flat': rtn = new TreeNodePrintFlat(); break;
-      case 'Hierarchy': rtn = new TreeNodePrintHier(); break;
-      case 'ListToHeading': rtn = new TreeNodePrintHeading(); break;
+      case 'Flat': rtn = new TreeNodePrintFlat(); cfgKey = 'sortAndFlattenList.readIndent'; break;
+      case 'Hierarchy': rtn = new TreeNodePrintHier(); cfgKey = 'sortList.readIndent'; break;
+      case 'ListToHeading': rtn = new TreeNodePrintHeading(); cfgKey = 'convertListToHeadings.readIndent'; break;
       case 'HeadingToList': rtn = new HeadingsPrintHier(); break;
       default: throw new Error('Unknown TreeNodeType');
     }
@@ -42,15 +37,17 @@ export function createTreeNodeFactoryByReadline(type: TreeNodePrintTypes): (line
       case 'Hierarchy':
       case 'ListToHeading': {
         const trim = line.trimStart();
-        const lvl = (line.length - trim.length) / (INDENT_IN.length);
+        const lvl = (line.length - trim.length) / (configs.get<string>(cfgKey).length);
         const raw = trim.substring(2);
         rtn.level = lvl;
         rtn.textRaw = raw;
         return rtn;
       }
       case 'HeadingToList': {
-        const [, hashs, content] = [...line.matchAll(REX)][0];
-        const lvl = hashs.length - 1 - IN_START_LEVEL;
+        const template = `(#+) (?:${configs.get<string>('convertHeadingsToList.headingIndent')})*(?:(?:\\d\\.)*\\d)\\) (.+)`;
+        const rex = new RegExp(template, 'g');
+        const [, hashs, content] = [...line.matchAll(rex)][0];
+        const lvl = hashs.length - 1 - configs.get<number>('convertHeadingsToList.headingStartLevel');
         rtn.textRaw = content; // format --> "{content}"
         rtn.level = lvl;
         return rtn;
@@ -96,7 +93,7 @@ export class TreeNodePrintHier extends TreeNodeBase {
     if (!isBlockRef) {
       this.textSort = parseTextSort(this.textRaw);
     }
-    this.textDisplay = `${INDENT_OUT.repeat(this.level)}- ${this.textRaw}`;
+    this.textDisplay = `${configs.get<string>('sortList.writeIndent').repeat(this.level)}- ${this.textRaw}`;
   }
 }
 export class TreeNodePrintFlat extends TreeNodeBase {
@@ -105,29 +102,26 @@ export class TreeNodePrintFlat extends TreeNodeBase {
     const isBlockRef = isBlockReference(this.textRaw);
     if (isBlockRef) { return; }
     this.textSort = parseTextSort(this.textRaw);
+    const del = configs.get<string>('sortAndFlattenList.delimiter');
     if (isSortable(nodeStack)) {
-      this.textDisplay = nodeStack.map(q => stripOffHierarchy(q.textSort)).join('/ ').substring(2);
+      this.textDisplay = nodeStack.map(q => stripOffHierarchy(q.textSort)).join(del).substring(2);
     } else {
-      this.textDisplay = nodeStack.map(q => stripOffHierarchy(q.textRaw)).join('/ ').substring(2);
+      this.textDisplay = nodeStack.map(q => stripOffHierarchy(q.textRaw)).join(del).substring(2);
     }
   }
 }
-const START_LEVEL = 1;
-const INDENT_TOKEN = '&emsp;';
-const INDENT_BASIS = 2;
 export class TreeNodePrintHeading extends TreeNodeBase {
   kind: TreeNodePrintTypes = 'ListToHeading';
   setDisplayText(nodeStack: IParsable[]): void {
-    const hashs = '#'.repeat(START_LEVEL + this.level + 1);
-    const indents = INDENT_TOKEN.repeat(INDENT_BASIS * this.level);
+    const hashs = '#'.repeat(configs.get<number>('convertListToHeadings.headingStartLevel') + this.level + 1);
+    const indents = configs.get<string>('convertListToHeadings.headingIndent').repeat(this.level);
     const digits = nodeStack.slice(0, -1).map(q => q.children.length).join('.');
     this.textDisplay = `${hashs} ${indents}${digits}) ${this.textRaw}`;
   }
 }
-const OUT_INDENT = '  ';
 export class HeadingsPrintHier extends TreeNodeBase {
   kind: TreeNodePrintTypes = 'HeadingToList';
   setDisplayText(): void {
-    this.textDisplay = `${OUT_INDENT.repeat(this.level)}- ${this.textRaw}`;
+    this.textDisplay = `${configs.get<string>('convertHeadingsToList.writeIndent').repeat(this.level)}- ${this.textRaw}`;
   }
 }

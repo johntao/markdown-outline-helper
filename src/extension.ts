@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import * as tn from './treeNode';
 import * as ut from './utils';
+import * as configs from './configs';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -11,14 +12,14 @@ export function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "markdown-outline-helper" is now active!');
-
+  
   context.subscriptions.push(
     registerEditorCommand('convertHeadingToList', tn.HeadingsPrintHier),
     registerEditorCommand('convertListToHeading', tn.TreeNodePrintHeading),
     registerEditorCommand('sortList', tn.TreeNodePrintHier),
     registerEditorCommand('sortListAndConvertToFlat', tn.TreeNodePrintFlat));
 }
-function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { new(): T } ): vscode.Disposable {
+function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { new(): T }): vscode.Disposable {
   return vscode.commands.registerTextEditorCommand(`markdown-outline-helper.${cmdId}`, (app: vscode.TextEditor) => {
     const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
     if (isAllEmpty) { return; }
@@ -26,6 +27,7 @@ function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { ne
     const { start } = adjustRange(app, startDir, oldRng.start);
     const { end } = adjustRange(app, endDir, oldRng.end);
     const newRng = oldRng.with(start, end);
+    configs.refreshConfiguration();
     app.edit(ed => {
       const root: tn.ISortable = new type();
       const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
