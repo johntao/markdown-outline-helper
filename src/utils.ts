@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import * as cfg from "./configs";
 import * as tn from "./treeNode";
 
 interface ReturnString {
@@ -7,9 +8,11 @@ interface ReturnString {
 export class ItrContext {
   constructor(root: tn.ISortable) {
     this.nodeStack = [root];
+    this.sortLevel = cfg.get<number>(cfg.KeyEnum.sortStartLevel) - 1; // -1 based, root start from -1
   }
   nodeStack: tn.ISortable[];
   prevLevel = -1;
+  sortLevel = -1;
   get parent() { return this.nodeStack.at(-1)!; }
   get siblings() { return this.parent.children; }
 }
@@ -17,13 +20,14 @@ export function isSortable(siblings: tn.IPrintable[]): siblings is tn.ISortable[
   const node = siblings[0];
   return (node as tn.ISortable).textSort !== undefined;
 }
-export function parseTreeItr(this: ItrContext, line: string): void {
+const doTextSort = (q: tn.ISortable, w: tn.ISortable): number => q ? q.textSort.localeCompare(w.textSort) : -1;
+function parseTreeIterator(this: ItrContext, line: string): void {
   const kind = this.nodeStack[0].kind;
   const nextNode = tn.createTreeNodeFactoryByReadline(kind)(line);
   let cnt = 0;
-  while (++cnt && nextNode.level <= this.prevLevel--) {
+  while (++cnt && nextNode.level <= this.prevLevel && this.sortLevel <= this.prevLevel--) {
     if (cnt > 1 && isSortable(this.siblings)) {
-      this.siblings.sort((q, w) => q ? q.textSort.localeCompare(w.textSort) : -1);
+      this.siblings.sort(doTextSort);
     }
     this.nodeStack.pop();
   }
@@ -32,8 +36,15 @@ export function parseTreeItr(this: ItrContext, line: string): void {
   nextNode.setDisplayText(this.nodeStack);
   this.prevLevel = nextNode.level;
 }
+export function parseTreeFromLines(lines: string[], ctxt: ItrContext): void {
+  lines.forEach(parseTreeIterator, ctxt);
+  const children = ctxt.nodeStack[0].children;
+  if (ctxt.sortLevel === -1 && isSortable(children)) {
+    children.sort(doTextSort);
+  }
+}
 export function parseTreeFromText(txt: string, ctxt: ItrContext): void {
-  txt.split('\n').forEach(parseTreeItr, ctxt);
+  parseTreeFromLines(txt.split('\n'), ctxt);
 }
 export function printTreeRecur(node: tn.IPrintable, rtn: ReturnString = { result: '' }): string {
   if (node.textDisplay) {

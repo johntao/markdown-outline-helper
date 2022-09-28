@@ -31,8 +31,7 @@ function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { ne
     app.edit(ed => {
       const root: tn.ISortable = new type();
       const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
-      const lines = [...readLines(app, start.line, end.line)];
-      lines.forEach(ut.parseTreeItr, itrCtxt);
+      ut.parseTreeFromLines([...readLines(app, start.line, end.line)], itrCtxt);
       const text = ut.printTree(root);
       ed.delete(newRng);
       ed.insert(start, text.slice(0, -1));
