@@ -9,10 +9,13 @@ export class ItrContext {
   constructor(root: tn.ISortable) {
     this.nodeStack = [root];
     this.sortLevel = cfg.get<number>(cfg.KeyEnum.sortStartLevel) - 1; // -1 based, root start from -1
+    const sortOrder = cfg.get<string>(cfg.KeyEnum.sortOrder);
+    this.sortFunction = sortOrder === 'ASC' ? textSortASC : textSortDESC;
   }
   nodeStack: tn.ISortable[];
   prevLevel = -1;
   sortLevel = -1;
+  sortFunction: (q: tn.ISortable, w: tn.ISortable) => number;
   get parent() { return this.nodeStack.at(-1)!; }
   get siblings() { return this.parent.children; }
 }
@@ -20,14 +23,15 @@ export function isSortable(siblings: tn.IPrintable[]): siblings is tn.ISortable[
   const node = siblings[0];
   return (node as tn.ISortable).textSort !== undefined;
 }
-const doTextSort = (q: tn.ISortable, w: tn.ISortable): number => q ? q.textSort.localeCompare(w.textSort) : -1;
+const textSortASC = (q: tn.ISortable, w: tn.ISortable): number => q ? q.textSort.localeCompare(w.textSort) : -1;
+const textSortDESC = (q: tn.ISortable, w: tn.ISortable): number => q ? w.textSort.localeCompare(q.textSort) : -1;
 function parseTreeIterator(this: ItrContext, line: string): void {
   const kind = this.nodeStack[0].kind;
   const nextNode = tn.createTreeNodeFactoryByReadline(kind)(line);
   let cnt = 0;
   while (++cnt && nextNode.level <= this.prevLevel && this.sortLevel <= this.prevLevel--) {
     if (cnt > 1 && isSortable(this.siblings)) {
-      this.siblings.sort(doTextSort);
+      this.siblings.sort(this.sortFunction);
     }
     this.nodeStack.pop();
   }
@@ -40,7 +44,7 @@ export function parseTreeFromLines(lines: string[], ctxt: ItrContext): void {
   lines.forEach(parseTreeIterator, ctxt);
   const children = ctxt.nodeStack[0].children;
   if (ctxt.sortLevel === -1 && isSortable(children)) {
-    children.sort(doTextSort);
+    children.sort(ctxt.sortFunction);
   }
 }
 export function parseTreeFromText(txt: string, ctxt: ItrContext): void {

@@ -13,6 +13,7 @@ export enum KeyEnum {
   headingIndent,
   flatItemDelimiter,
   sortStartLevel,
+  sortOrder,
 }
 
 export function get<T>(key: number): T {

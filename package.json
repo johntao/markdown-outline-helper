@@ -67,6 +67,12 @@
           "type": "integer",
           "default": 1,
           "description": "Specifies the starting level for the sorting function (zero-based)."
+        },
+        "markdown-outline-helper.sortOrder": {
+          "type": "string",
+          "default": "ASC",
+          "enum": ["ASC", "DESC"],
+          "description": "Specifies the order for the sorting function."
         }
       }
     }
