@@ -10,20 +10,20 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:markdown-outline-helper.convertHeadingToList",
-    "onCommand:markdown-outline-helper.convertListToHeading",
+    "onCommand:markdown-outline-helper.convertHeadingsToList",
+    "onCommand:markdown-outline-helper.convertListToHeadings",
     "onCommand:markdown-outline-helper.sortList",
-    "onCommand:markdown-outline-helper.sortListAndConvertToFlat"
+    "onCommand:markdown-outline-helper.sortAndFlattenList"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "markdown-outline-helper.convertHeadingToList",
+        "command": "markdown-outline-helper.convertHeadingsToList",
         "title": "Convert headings to list"
       },
       {
-        "command": "markdown-outline-helper.convertListToHeading",
+        "command": "markdown-outline-helper.convertListToHeadings",
         "title": "Convert list to headings"
       },
       {
@@ -31,7 +31,7 @@
         "title": "Sort list"
       },
       {
-        "command": "markdown-outline-helper.sortListAndConvertToFlat",
+        "command": "markdown-outline-helper.sortAndFlattenList",
         "title": "Sort list and convert to flat items"
       }
     ],

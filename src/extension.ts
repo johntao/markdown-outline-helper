@@ -14,10 +14,10 @@ export function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "markdown-outline-helper" is now active!');
   
   context.subscriptions.push(
-    registerEditorCommand('convertHeadingToList', tn.HeadingsPrintHier),
-    registerEditorCommand('convertListToHeading', tn.TreeNodePrintHeading),
+    registerEditorCommand('convertHeadingsToList', tn.HeadingsPrintHier),
+    registerEditorCommand('convertListToHeadings', tn.TreeNodePrintHeading),
     registerEditorCommand('sortList', tn.TreeNodePrintHier),
-    registerEditorCommand('sortListAndConvertToFlat', tn.TreeNodePrintFlat));
+    registerEditorCommand('sortAndFlattenList', tn.TreeNodePrintFlat));
 }
 function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { new(): T }): vscode.Disposable {
   return vscode.commands.registerTextEditorCommand(`markdown-outline-helper.${cmdId}`, (app: vscode.TextEditor) => {
