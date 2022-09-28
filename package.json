@@ -1,8 +1,12 @@
 {
   "name": "markdown-outline-helper",
   "displayName": "markdown-outline-helper",
-  "description": "A minimal markdown outline helper to convert between list and headings, convert hierarchical list into flat items, and to sort hierarchical items",
   "version": "0.0.1",
+  "publisher": "JohnTao",
+  "description": "A minimal markdown outline helper to convert between list and headings, convert hierarchical list into flat items, and to sort hierarchical items",
+  "author": {
+    "name": "John Tao"
+  },
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -97,5 +101,15 @@
     "glob": "^8.0.3",
     "mocha": "^10.0.0",
     "typescript": "^4.7.4"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "type": "git",
+    "url": "https://github.com/johntao/markdown-outline-helper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johntao/markdown-outline-helper"
+  },
+  "homepage": "https://github.com/johntao/markdown-outline-helper"
 }
