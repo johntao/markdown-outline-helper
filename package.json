@@ -38,77 +38,27 @@
     "configuration": {
       "title": "markdown-outline-helper",
       "properties": {
-        "markdown-outline-helper.useGlobal": {
-          "type": "boolean",
-          "default": false,
-          "description": "Use global to override local settings."
-        },
-        "markdown-outline-helper.global.readIndent": {
+        "markdown-outline-helper.readListIndent": {
           "type": "string",
           "default": "  ",
           "description": "Specifies the indent basis for the parsing function."
         },
-        "markdown-outline-helper.global.writeIndent": {
+        "markdown-outline-helper.writeListIndent": {
           "type": "string",
           "default": "  ",
           "description": "Specifies the indent basis for the printing function."
         },
-        "markdown-outline-helper.global.headingStartLevel": {
+        "markdown-outline-helper.headingStartLevel": {
           "type": "integer",
           "default": 1,
           "description": "Specifies the starting level of the heading (zero-based)."
         },
-        "markdown-outline-helper.global.headingIndent": {
+        "markdown-outline-helper.headingIndent": {
           "type": "string",
           "default": "&emsp;&emsp;",
           "description": "Specifies the indent basis of the heading."
         },
-        "markdown-outline-helper.convertHeadingsToList.writeIndent": {
-          "type": "string",
-          "default": "  ",
-          "description": "Specifies the indent basis for the printing function."
-        },
-        "markdown-outline-helper.convertHeadingsToList.headingStartLevel": {
-          "type": "integer",
-          "default": 1,
-          "description": "Specifies the starting level of the heading (zero-based)."
-        },
-        "markdown-outline-helper.convertHeadingsToList.headingIndent": {
-          "type": "string",
-          "default": "&emsp;&emsp;",
-          "description": "Specifies the indent basis of the heading."
-        },
-        "markdown-outline-helper.convertListToHeadings.readIndent": {
-          "type": "string",
-          "default": "  ",
-          "description": "Specifies the indent basis for the parsing function."
-        },
-        "markdown-outline-helper.convertListToHeadings.headingStartLevel": {
-          "type": "integer",
-          "default": 1,
-          "description": "Specifies the starting level of the heading (zero-based)."
-        },
-        "markdown-outline-helper.convertListToHeadings.headingIndent": {
-          "type": "string",
-          "default": "&emsp;&emsp;",
-          "description": "Specifies the indent basis of the heading."
-        },
-        "markdown-outline-helper.sortList.readIndent": {
-          "type": "string",
-          "default": "  ",
-          "description": "Specifies the indent basis for the parsing function."
-        },
-        "markdown-outline-helper.sortList.writeIndent": {
-          "type": "string",
-          "default": "  ",
-          "description": "Specifies the indent basis for the printing function."
-        },
-        "markdown-outline-helper.sortAndFlattenList.readIndent": {
-          "type": "string",
-          "default": "  ",
-          "description": "Specifies the indent basis for the parsing function."
-        },
-        "markdown-outline-helper.sortAndFlattenList.delimiter": {
+        "markdown-outline-helper.flatItemDelimiter": {
           "type": "string",
           "default": "/ ",
           "description": "Specifies the delimiter for the flat hierarchical items."
