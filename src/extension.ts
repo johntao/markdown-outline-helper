@@ -5,12 +5,12 @@ import * as configs from './configs';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    registerEditorCommand('convertHeadingsToList', tn.parseGitHubHeadings, tn.printGitHubList),
-    registerEditorCommand('convertListToHeadings', tn.parseMarkdownList, tn.printGitHubHeadings),
-    registerEditorCommand('sortList', tn.parseMarkdownList, tn.printLogSeqTree),
-    registerEditorCommand('sortAndFlattenList', tn.parseMarkdownList, tn.printLogSeqFlatTree));
+    registerEditorCommand('convertHeadingsToList', 'GitHubHeadingToList'),
+    registerEditorCommand('convertListToHeadings', 'GitHubListToHeading'),
+    registerEditorCommand('sortList', 'LogSeqList'),
+    registerEditorCommand('sortAndFlattenList', 'LogSeqFlatList'));
 }
-function registerEditorCommand(cmdId: string, parseFn: tn.ParseFunc, printFn: tn.PrintFunc): vscode.Disposable {
+function registerEditorCommand(cmdId: string, kind: tn.TreeNodeTypes): vscode.Disposable {
   return vscode.commands.registerTextEditorCommand(`markdown-outline-helper.${cmdId}`, (app: vscode.TextEditor) => {
     const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
     if (isAllEmpty) { return; }
@@ -20,7 +20,7 @@ function registerEditorCommand(cmdId: string, parseFn: tn.ParseFunc, printFn: tn
     const newRng = oldRng.with(start, end);
     configs.refreshConfiguration();
     app.edit(ed => {
-      const root: tn.ISortable = new tn.TreeNodeBase(parseFn, printFn);
+      const root: tn.ISortable = tn.treeNodeFactory(kind);
       const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
       ut.parseTreeFromLines([...readLines(app, start.line, end.line)], itrCtxt);
       const text = ut.printTree(root);
