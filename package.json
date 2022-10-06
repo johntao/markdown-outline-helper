@@ -1,7 +1,7 @@
 {
   "name": "markdown-outline-helper",
   "displayName": "markdown-outline-helper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "JohnTao",
   "description": "A minimal markdown outline helper to toggle between list and headings, convert hierarchical list into flat items, and to sort hierarchical items",
   "author": {
