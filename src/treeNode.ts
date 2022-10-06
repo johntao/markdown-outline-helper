@@ -3,6 +3,9 @@ import { isSortable } from "./utils";
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 export type TreeNodeTypes = 'LogSeqFlatList' | 'LogSeqList' | 'GitHubListToHeading' | 'GitHubHeadingToList';
+
+type PrintFunc = (nodeStack: IParsable[]) => void;
+type ParseFunc = (line: string) => ISortable;
 export interface IPrintable {
   textDisplay: string
   children: IPrintable[]
@@ -22,22 +25,22 @@ export interface ISortable extends IParsable {
 
 export function treeNodeFactory(kind: TreeNodeTypes): ISortable {
   switch (kind) {
-    case 'LogSeqFlatList': return new TreeNodeBase(kind, parseMarkdownList, printLogSeqFlatTree);
-    case 'LogSeqList': return new TreeNodeBase(kind, parseMarkdownList, printLogSeqTree);
-    case 'GitHubListToHeading': return new TreeNodeBase(kind, parseMarkdownList, printGitHubHeadings);
-    case 'GitHubHeadingToList': return new TreeNodeBase(kind, parseGitHubHeadings, printGitHubList);
-    default: throw new Error();
+    case 'LogSeqFlatList': return new TreeNode(kind, parseMarkdownList, printLogSeqFlatTree);
+    case 'LogSeqList': return new TreeNode(kind, parseMarkdownList, printLogSeqTree);
+    case 'GitHubListToHeading': return new TreeNode(kind, parseMarkdownList, printGitHubHeadings);
+    case 'GitHubHeadingToList': return new TreeNode(kind, parseGitHubHeadings, printGitHubList);
+    default: throw new Error(`Unknown TreeNodeType "${kind}"!`);
   }
 }
 
-export function createTreePrintFlat(lvl: number, txt: string): TreeNodeBase {
-  const rtn = new TreeNodeBase('LogSeqFlatList', parseMarkdownList, printLogSeqFlatTree);
+export function createTreePrintFlat(lvl: number, txt: string): TreeNode {
+  const rtn = new TreeNode('LogSeqFlatList', parseMarkdownList, printLogSeqFlatTree);
   rtn.level = lvl;
   rtn.textRaw = txt;
   return rtn;
 }
 
-function parseMarkdownList(this: TreeNodeBase, line: string): ISortable {
+function parseMarkdownList(this: TreeNode, line: string): ISortable {
   const trim = line.trimStart();
   const lvl = (line.length - trim.length) / (cfg.get<string>(cfg.KeyEnum.readListIndent).length);
   const raw = trim.substring(2);
@@ -46,7 +49,7 @@ function parseMarkdownList(this: TreeNodeBase, line: string): ISortable {
   return this;
 }
 
-function parseGitHubHeadings(this: TreeNodeBase, line: string): ISortable {
+function parseGitHubHeadings(this: TreeNode, line: string): ISortable {
   const template = `(#+) (?:${cfg.get<string>(cfg.KeyEnum.headingIndent)})*(?:(?:\\d\\.)*\\d)\\) (.+)`;
   const rex = new RegExp(template, 'g');
   const [, hashs, content] = [...line.matchAll(rex)][0];
@@ -56,10 +59,7 @@ function parseGitHubHeadings(this: TreeNodeBase, line: string): ISortable {
   return this;
 }
 
-type PrintFunc = (nodeStack: IParsable[]) => void;
-type ParseFunc = (line: string) => ISortable;
-
-class TreeNodeBase implements ISortable {
+class TreeNode implements ISortable {
   textSort = '';
   level = -1;
   constructor(kind: TreeNodeTypes, parseFn: ParseFunc, printFn: PrintFunc) {
