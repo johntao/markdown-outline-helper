@@ -1,25 +1,16 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as tn from './treeNode';
 import * as ut from './utils';
 import * as configs from './configs';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "markdown-outline-helper" is now active!');
-  
   context.subscriptions.push(
-    registerEditorCommand('convertHeadingsToList', tn.HeadingsPrintHier),
-    registerEditorCommand('convertListToHeadings', tn.TreeNodePrintHeading),
-    registerEditorCommand('sortList', tn.TreeNodePrintHier),
-    registerEditorCommand('sortAndFlattenList', tn.TreeNodePrintFlat));
+    registerEditorCommand('convertHeadingsToList', tn.parseGitHubHeadings, tn.printGitHubList),
+    registerEditorCommand('convertListToHeadings', tn.parseMarkdownList, tn.printGitHubHeadings),
+    registerEditorCommand('sortList', tn.parseMarkdownList, tn.printLogSeqTree),
+    registerEditorCommand('sortAndFlattenList', tn.parseMarkdownList, tn.printLogSeqFlatTree));
 }
-function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { new(): T }): vscode.Disposable {
+function registerEditorCommand(cmdId: string, parseFn: tn.ParseFunc, printFn: tn.PrintFunc): vscode.Disposable {
   return vscode.commands.registerTextEditorCommand(`markdown-outline-helper.${cmdId}`, (app: vscode.TextEditor) => {
     const { start: startDir, end: endDir, isAllEmpty } = inspectRange(app);
     if (isAllEmpty) { return; }
@@ -29,7 +20,7 @@ function registerEditorCommand<T extends tn.ISortable>(cmdId: string, type: { ne
     const newRng = oldRng.with(start, end);
     configs.refreshConfiguration();
     app.edit(ed => {
-      const root: tn.ISortable = new type();
+      const root: tn.ISortable = new tn.TreeNodeBase(parseFn, printFn);
       const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
       ut.parseTreeFromLines([...readLines(app, start.line, end.line)], itrCtxt);
       const text = ut.printTree(root);
@@ -109,6 +100,6 @@ function* readLines(app: vscode.TextEditor, start: number, end: number) {
     yield app.document.lineAt(i).text;
   }
 }
-// this method is called when your extension is deactivated
+
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate() { }

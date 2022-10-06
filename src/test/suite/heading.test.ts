@@ -4,7 +4,7 @@ import * as tn from '../../treeNode';
 import * as ut from '../../utils';
 
 suite('Github Outline Helper List to Heading', () => {
-  const root: tn.ISortable = new tn.TreeNodePrintHeading();
+  const root: tn.ISortable = new tn.TreeNodeBase(tn.parseMarkdownList, tn.printGitHubHeadings);
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   test('test1', () => {
     const data = `- 100
@@ -46,7 +46,7 @@ suite('Github Outline Helper List to Heading', () => {
   });
 });
 suite('Github Outline Helper Heading to List', () => {
-  const root: tn.ISortable = new tn.HeadingsPrintHier();
+  const root: tn.ISortable = new tn.TreeNodeBase(tn.parseGitHubHeadings, tn.printGitHubList);
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   test('test1', () => {
     const data = `## 1) 100

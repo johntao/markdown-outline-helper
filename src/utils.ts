@@ -26,8 +26,9 @@ export function isSortable(siblings: tn.IPrintable[]): siblings is tn.ISortable[
 const textSortASC = (q: tn.ISortable, w: tn.ISortable): number => q ? q.textSort.localeCompare(w.textSort) : -1;
 const textSortDESC = (q: tn.ISortable, w: tn.ISortable): number => q ? w.textSort.localeCompare(q.textSort) : -1;
 function parseTreeIterator(this: ItrContext, line: string): void {
-  const kind = this.nodeStack[0].kind;
-  const nextNode = tn.createTreeNodeFactoryByReadline(kind)(line);
+  const root = this.nodeStack[0] as tn.TreeNodeBase;
+  const nextNode = new tn.TreeNodeBase(root.setLevelAndRawText, root.setDisplayText);
+  nextNode.setLevelAndRawText(line);
   let cnt = 0;
   while (++cnt && nextNode.level <= this.prevLevel && this.sortLevel <= this.prevLevel--) {
     if (cnt > 1 && isSortable(this.siblings)) {

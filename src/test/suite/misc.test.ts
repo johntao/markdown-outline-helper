@@ -4,7 +4,7 @@ import * as tn from '../../treeNode';
 import * as ut from '../../utils';
 
 suite('Flatten integration test', () => {
-  const root: tn.ISortable = new tn.TreeNodePrintFlat();
+  const root: tn.ISortable = new tn.TreeNodeBase(tn.parseMarkdownList, tn.printLogSeqFlatTree);
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   test('integration test', () => {
     const data = `- 100
@@ -46,7 +46,7 @@ suite('Flatten integration test', () => {
   });
 });
 suite('Flatten test', () => {
-  const root: tn.ISortable = new tn.TreeNodePrintFlat();
+  const root: tn.ISortable = new tn.TreeNodeBase(tn.parseMarkdownList, tn.printLogSeqFlatTree);
   test('Simple', () => {
     const nodeStack = [
       root,
