@@ -3,7 +3,7 @@
   "displayName": "markdown-outline-helper",
   "version": "0.0.1",
   "publisher": "JohnTao",
-  "description": "A minimal markdown outline helper to convert between list and headings, convert hierarchical list into flat items, and to sort hierarchical items",
+  "description": "A minimal markdown outline helper to toggle between list and headings, convert hierarchical list into flat items, and to sort hierarchical items",
   "author": {
     "name": "John Tao"
   },
@@ -14,8 +14,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:markdown-outline-helper.convertHeadingsToList",
-    "onCommand:markdown-outline-helper.convertListToHeadings",
+    "onCommand:markdown-outline-helper.toggleHeadingsAndList",
     "onCommand:markdown-outline-helper.sortList",
     "onCommand:markdown-outline-helper.sortAndFlattenList"
   ],
@@ -23,12 +22,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "markdown-outline-helper.convertHeadingsToList",
-        "title": "Convert headings to list"
-      },
-      {
-        "command": "markdown-outline-helper.convertListToHeadings",
-        "title": "Convert list to headings"
+        "command": "markdown-outline-helper.toggleHeadingsAndList",
+        "title": "Toggle between headings and list"
       },
       {
         "command": "markdown-outline-helper.sortList",

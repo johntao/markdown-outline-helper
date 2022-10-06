@@ -13,8 +13,8 @@
 ### &emsp;&emsp;2.3) A practice project (node.js, typescript, unit test, vscode extension api...)
 #### &emsp;&emsp;&emsp;&emsp;2.3.1) Hence, I didn't do the market research before starting
 ## 3) Demo
-### &emsp;&emsp;3.1) Convert between list and headings
-![Convert between list and headings](https://i.imgur.com/sRJL6oc.gif)
+### &emsp;&emsp;3.1) Toggle between list and headings
+![Toggle between list and headings](https://i.imgur.com/YKQVcVI.gif)
 ### &emsp;&emsp;3.2) Sort hierarchical list  
 ![Sort hierarchical list](https://i.imgur.com/AmHuDF4.gif)
 ### &emsp;&emsp;3.3) Convert hierarchical list into flat items
