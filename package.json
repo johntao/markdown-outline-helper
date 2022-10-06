@@ -75,7 +75,10 @@
         "markdown-outline-helper.sortOrder": {
           "type": "string",
           "default": "ASC",
-          "enum": ["ASC", "DESC"],
+          "enum": [
+            "ASC",
+            "DESC"
+          ],
           "description": "Specifies the order for the sorting function."
         }
       }

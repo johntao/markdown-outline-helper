@@ -1,6 +1,7 @@
 import * as path from 'path';
 import Mocha from 'mocha';
 import glob from 'glob';
+import * as cfg from '../../configs';
 
 export function run(): Promise<void> {
   // Create the mocha test
@@ -22,6 +23,7 @@ export function run(): Promise<void> {
 
       try {
         // Run the mocha test
+        cfg.refreshConfiguration();
         mocha.run(failures => {
           if (failures > 0) {
             e(new Error(`${failures} tests failed.`));

@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import * as tn from '../../treeNode';
 import * as ut from '../../utils';
 
-suite.skip('Github Outline Helper List to Heading', () => {
+suite('Github Outline Helper List to Heading', () => {
   const root: tn.ISortable = new tn.TreeNodePrintHeading();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   test('test1', () => {

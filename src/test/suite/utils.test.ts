@@ -4,9 +4,9 @@ import * as vscode from 'vscode';
 import * as tn from '../../treeNode';
 import * as ut from '../../utils';
 
-suite.skip('Utils print tree', () => {
+suite('Utils print tree', () => {
   vscode.window.showInformationMessage('Start all tests.');
-  test.skip('Print tree', () => {
+  test('Print tree', () => {
     const root: tn.IPrintable = {
       textDisplay: '',
       children: [
@@ -69,7 +69,7 @@ suite.skip('Utils print tree', () => {
     assert.strictEqual(actual2, expected);
   });
 });
-suite.skip('Utils parse tree', () => {
+suite('Utils parse tree', () => {
   const root: tn.ISortable = new tn.TreeNodePrintHier();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
@@ -78,7 +78,7 @@ suite.skip('Utils parse tree', () => {
     itrCtxt.nodeStack = [root];
     itrCtxt.prevLevel = -1;
   });
-  test.skip('One level', () => {
+  test('One level', () => {
     const data = `- 100
 - 200
 - 300`;
@@ -86,7 +86,7 @@ suite.skip('Utils parse tree', () => {
     const actual = ut.printTree(root);
     assert.strictEqual(actual, data + '\n');
   });
-  test.skip('One level sort', () => {
+  test('One level sort', () => {
     const data = `- 200
 - 300
 - 100`;
@@ -98,7 +98,7 @@ suite.skip('Utils parse tree', () => {
     const actual = ut.printTree(root);
     assert.strictEqual(actual, expected);
   });
-  test.skip('Two level', () => {
+  test('Two level', () => {
     const data = `- 100
   - 110
   - 120
@@ -109,7 +109,7 @@ suite.skip('Utils parse tree', () => {
     const actual = ut.printTree(root);
     assert.strictEqual(actual, data + '\n');
   });
-  test.skip('Two level sort', () => {
+  test('Two level sort', () => {
     const data = `- 100
   - 130
   - 110
@@ -191,7 +191,7 @@ suite.skip('Utils parse tree', () => {
     assert.strictEqual(actual, expected);
   });
 });
-suite.skip('Utils sort special cases (print hierarchy)', () => {
+suite('Utils sort special cases (print hierarchy)', () => {
   const root: tn.ISortable = new tn.TreeNodePrintHier();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
@@ -263,7 +263,7 @@ suite.skip('Utils sort special cases (print hierarchy)', () => {
     assert.strictEqual(actual, expected);
   });
 });
-suite.skip('Utils sort special cases (print flat)', () => {
+suite('Utils sort special cases (print flat)', () => {
   const root: tn.ISortable = new tn.TreeNodePrintFlat();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
