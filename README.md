@@ -1,5 +1,7 @@
 # markdown-outline-helper
 
+[![Coverage Status](https://coveralls.io/repos/github/johntao/markdown-outline-helper/badge.svg?branch=feat-addCoveralls)](https://coveralls.io/github/johntao/markdown-outline-helper?branch=feat-addCoveralls)
+
 ## 1) Intro
 ### &emsp;&emsp;1.1) A minimal markdown outline helper to convert between list and headings, convert hierarchical list into flat items, and to sort hierarchical items
 ## 2) Motivation

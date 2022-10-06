@@ -1,2 +1,5 @@
 out
 *.vsix
+.vscode-test
+.nyc_output
+coverage

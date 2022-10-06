@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import * as tn from '../../treeNode';
 import * as ut from '../../utils';
 
-suite.skip('Flatten integration test', () => {
+suite('Flatten integration test', () => {
   const root: tn.ISortable = new tn.TreeNodePrintFlat();
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   test('integration test', () => {
@@ -45,7 +45,7 @@ suite.skip('Flatten integration test', () => {
     assert.strictEqual(actual, expected);
   });
 });
-suite.skip('Flatten test', () => {
+suite('Flatten test', () => {
   const root: tn.ISortable = new tn.TreeNodePrintFlat();
   test('Simple', () => {
     const nodeStack = [
