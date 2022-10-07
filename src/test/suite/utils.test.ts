@@ -2,7 +2,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as tn from '../../treeNode';
-import * as ut from '../../utils';
+import * as ut from '../../iteratorUtils';
 
 suite('Utils print tree', () => {
   vscode.window.showInformationMessage('Start all tests.');

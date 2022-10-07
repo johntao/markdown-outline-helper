@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as tn from './treeNode';
-import * as ut from './utils';
+import * as ut from './iteratorUtils';
 import * as ru from './rangeUtils';
 import * as cfg from './configs';
 

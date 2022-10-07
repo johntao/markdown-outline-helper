@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as assert from 'assert';
 import * as tn from '../../treeNode';
-import * as ut from '../../utils';
+import * as ut from '../../iteratorUtils';
 
 suite('Github Outline Helper List to Heading', () => {
   const root: tn.ITreeNode = tn.treeNodeFactory('GitHubListToHeading');
