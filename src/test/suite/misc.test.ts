@@ -4,7 +4,7 @@ import * as tn from '../../treeNode';
 import * as ut from '../../utils';
 
 suite('Flatten integration test', () => {
-  const root: tn.ISortable = tn.treeNodeFactory('LogSeqFlatList');
+  const root: tn.ITreeNode = tn.treeNodeFactory('LogSeqFlatList');
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   test('integration test', () => {
     const data = `- 100
@@ -46,66 +46,39 @@ suite('Flatten integration test', () => {
   });
 });
 suite('Flatten test', () => {
-  const root: tn.ISortable = tn.treeNodeFactory('LogSeqFlatList');
+  const root: tn.ITreeNode = tn.treeNodeFactory('LogSeqFlatList');
   test('Simple', () => {
-    const nodeStack = [
-      root,
-      tn.createTreePrintFlat(0, '100'),
-      tn.createTreePrintFlat(1, '110'),
-      tn.createTreePrintFlat(2, '111'),
-    ];
-    exam(nodeStack);
+    exam(tn.buildNodeStack(root, '100', '110', '111'));
   });
   test('Remove LogSeq hierarchy', () => {
-    const nodeStack = [
-      root,
-      tn.createTreePrintFlat(0, '100'),
-      tn.createTreePrintFlat(1, '100/ 110'),
-      tn.createTreePrintFlat(2, '100/ 110/ 111'),
-    ];
-    exam(nodeStack);
+    exam(tn.buildNodeStack(root, '100', '100/ 110', '100/ 110/ 111'));
   });
   test('Brackets', () => {
-    const nodeStack = [
-      root,
-      tn.createTreePrintFlat(0, '[[100]]'),
-      tn.createTreePrintFlat(1, '110'),
-      tn.createTreePrintFlat(2, '[[111]]#tag1'),
-    ];
-    exam(nodeStack);
+    exam(tn.buildNodeStack(root, '[[100]]', '110', '[[111]]#tag1'));
   });
   test('Block reference', () => {
-    const nodeStack = [
-      root,
-      tn.createTreePrintFlat(0, '[[100]]'),
-      tn.createTreePrintFlat(1, '110'),
-      tn.createTreePrintFlat(2, '((632b1b15-2250-4041-ba65-a11c852b552c))'),
-    ];
-    nodeStack[1].setDisplayText(nodeStack.slice(0, 2));
-    nodeStack[2].setDisplayText(nodeStack.slice(0, 3));
-    nodeStack[3].setDisplayText(nodeStack);
-    let tmp = nodeStack[3];
-    assert.strictEqual(tmp.textDisplay, '');
-    assert.strictEqual(tmp.textSort, '');
-    tmp = nodeStack[2];
-    assert.strictEqual(tmp.textDisplay, '100/ 110');
-    assert.strictEqual(tmp.textSort, '110');
+    const nodeStack = tn.buildNodeStack(root, '[[100]]', '110', '((632b1b15-2250-4041-ba65-a11c852b552c))');
+    let tmp: tn.IPrintLogSeqFlatList;
     tmp = nodeStack[1];
     assert.strictEqual(tmp.textDisplay, '100');
     assert.strictEqual(tmp.textSort, '100');
+    tmp = nodeStack[2];
+    assert.strictEqual(tmp.textDisplay, '100/ 110');
+    assert.strictEqual(tmp.textSort, '110');
+    tmp = nodeStack[3];
+    assert.strictEqual(tmp.textDisplay, '');
+    assert.strictEqual(tmp.textSort, '');
   });
 });
-function exam(nodeStack: tn.ISortable[]) {
-  nodeStack[1].setDisplayText(nodeStack.slice(0, 2));
-  nodeStack[2].setDisplayText(nodeStack.slice(0, 3));
-  nodeStack[3].setDisplayText(nodeStack);
-  let tmp = nodeStack[3];
-  assert.strictEqual(tmp.textDisplay, '100/ 110/ 111');
-  assert.strictEqual(tmp.textSort, '111');
-  tmp = nodeStack[2];
-  assert.strictEqual(tmp.textDisplay, '100/ 110');
-  assert.strictEqual(tmp.textSort, '110');
+function exam(nodeStack: tn.IPrintLogSeqFlatList[]) {
+  let tmp: tn.IPrintLogSeqFlatList;
   tmp = nodeStack[1];
   assert.strictEqual(tmp.textDisplay, '100');
   assert.strictEqual(tmp.textSort, '100');
+  tmp = nodeStack[2];
+  assert.strictEqual(tmp.textDisplay, '100/ 110');
+  assert.strictEqual(tmp.textSort, '110');
+  tmp = nodeStack[3];
+  assert.strictEqual(tmp.textDisplay, '100/ 110/ 111');
+  assert.strictEqual(tmp.textSort, '111');
 }

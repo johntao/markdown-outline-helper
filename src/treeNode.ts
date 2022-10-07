@@ -1,29 +1,56 @@
 import * as cfg from './configs';
-import { isSortable } from "./utils";
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 export type TreeNodeTypes = 'LogSeqFlatList' | 'LogSeqList' | 'GitHubListToHeading' | 'GitHubHeadingToList';
 
-type PrintFunc = (nodeStack: IParsable[]) => void;
-type ParseFunc = (line: string) => ISortable;
-export interface IPrintable {
-  textDisplay: string
-  children: IPrintable[]
-}
+type PrintFunc = () => void;
+type ParseFunc = (line: string) => ICanParse;
 
-export interface IParsable extends IPrintable {
-  level: number
+export interface ITreeNode extends ICanSort, IPrintRecur, ICanParse, ICanPrint {
+  children: ITreeNode[]
+  parentsAndSelf: ITreeNode[]
+  kind: TreeNodeTypes
   setLevelAndRawText: ParseFunc
   setDisplayText: PrintFunc
+}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface IHasChildren extends IHasChildrenOfT<IHasChildren> {
+}
+interface IHasChildrenOfT<T> {
+  children: T[]
+}
+export interface IPrintRecur extends IHasChildrenOfT<IPrintRecur> {
+  textDisplay: string
+}
+interface ICanPrint {
+  level: number
+  textRaw: string
+  textDisplay: string
+}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface IPrintGitHubList extends ICanPrint {
+}
+interface IPrintGitHubHeadings extends ICanPrint {
+  parentsAndSelf: IHasChildren[]
+}
+interface IPrintLogSeqList extends ICanPrint {
+  textSort: string
+}
+export interface IPrintLogSeqFlatList {
+  textRaw: string
+  textDisplay: string
+  textSort: string
+  parentsAndSelf: IPrintLogSeqFlatList[]
+}
+interface ICanParse {
+  level: number
   textRaw: string
 }
-
-export interface ISortable extends IParsable {
+export interface ICanSort {
   textSort: string
-  kind: TreeNodeTypes
 }
 
-export function treeNodeFactory(kind: TreeNodeTypes): ISortable {
+export function treeNodeFactory(kind: TreeNodeTypes): ITreeNode {
   switch (kind) {
     case 'LogSeqFlatList': return new TreeNode(kind, parseMarkdownList, printLogSeqFlatTree);
     case 'LogSeqList': return new TreeNode(kind, parseMarkdownList, printLogSeqTree);
@@ -33,14 +60,20 @@ export function treeNodeFactory(kind: TreeNodeTypes): ISortable {
   }
 }
 
-export function createTreePrintFlat(lvl: number, txt: string): TreeNode {
-  const rtn = new TreeNode('LogSeqFlatList', parseMarkdownList, printLogSeqFlatTree);
-  rtn.level = lvl;
-  rtn.textRaw = txt;
+export function buildNodeStack(root: ITreeNode, ...textRaw: string[]): TreeNode[] {
+  const rtn = [ root ];
+  textRaw.forEach((txt, idx) => {
+    const node = new TreeNode('LogSeqFlatList', parseMarkdownList, printLogSeqFlatTree);
+    node.level = idx;
+    node.textRaw = txt;
+    rtn.push(node);
+    node.parentsAndSelf = [...rtn];
+    node.setDisplayText();
+  });
   return rtn;
 }
 
-function parseMarkdownList(this: TreeNode, line: string): ISortable {
+function parseMarkdownList(this: TreeNode, line: string): ICanParse {
   const trim = line.trimStart();
   const lvl = (line.length - trim.length) / (cfg.get<string>(cfg.KeyEnum.readListIndent).length);
   const raw = trim.substring(2);
@@ -49,7 +82,7 @@ function parseMarkdownList(this: TreeNode, line: string): ISortable {
   return this;
 }
 
-function parseGitHubHeadings(this: TreeNode, line: string): ISortable {
+function parseGitHubHeadings(this: TreeNode, line: string): ICanParse {
   const template = `(#+) (?:${cfg.get<string>(cfg.KeyEnum.headingIndent)})*(?:(?:\\d\\.)*\\d)\\) (.+)`;
   const rex = new RegExp(template, 'g');
   const [, hashs, content] = [...line.matchAll(rex)][0];
@@ -59,7 +92,7 @@ function parseGitHubHeadings(this: TreeNode, line: string): ISortable {
   return this;
 }
 
-class TreeNode implements ISortable {
+class TreeNode implements ITreeNode {
   textSort = '';
   level = -1;
   constructor(kind: TreeNodeTypes, parseFn: ParseFunc, printFn: PrintFunc) {
@@ -72,7 +105,8 @@ class TreeNode implements ISortable {
   setDisplayText: PrintFunc;
   textRaw = '';
   textDisplay = '';
-  children: IPrintable[] = [];
+  children: ITreeNode[] = [];
+  parentsAndSelf: ITreeNode[] = [];
 }
 
 function isBlockReference(txt: string) {
@@ -91,30 +125,26 @@ function stripOffHierarchy(txt: string) {
   return txt.split('/').pop()!.trim();
 }
 
-function printLogSeqTree(this: ISortable): void {
+function printLogSeqTree(this: IPrintLogSeqList): void {
   const isBlockRef = isBlockReference(this.textRaw);
   if (!isBlockRef) {
     this.textSort = parseTextSort(this.textRaw);
   }
   this.textDisplay = `${cfg.get<string>(cfg.KeyEnum.writeListIndent).repeat(this.level)}- ${this.textRaw}`;
 }
-function printLogSeqFlatTree(this: ISortable, nodeStack: IParsable[]): void {
+function printLogSeqFlatTree(this: IPrintLogSeqFlatList): void {
   const isBlockRef = isBlockReference(this.textRaw);
   if (isBlockRef) { return; }
   this.textSort = parseTextSort(this.textRaw);
   const del = cfg.get<string>(cfg.KeyEnum.flatItemDelimiter);
-  if (isSortable(nodeStack)) {
-    this.textDisplay = nodeStack.map(q => stripOffHierarchy(q.textSort)).join(del).substring(2);
-  } else {
-    this.textDisplay = nodeStack.map(q => stripOffHierarchy(q.textRaw)).join(del).substring(2);
-  }
+  this.textDisplay = this.parentsAndSelf.map(q => stripOffHierarchy(q.textSort)).join(del).substring(2);
 }
-function printGitHubHeadings(this: ISortable, nodeStack: IParsable[]): void {
+function printGitHubHeadings(this: IPrintGitHubHeadings): void {
   const hashs = '#'.repeat(cfg.get<number>(cfg.KeyEnum.headingStartLevel) + this.level + 1);
   const indents = cfg.get<string>(cfg.KeyEnum.headingIndent).repeat(this.level);
-  const digits = nodeStack.slice(0, -1).map(q => q.children.length).join('.');
+  const digits = this.parentsAndSelf.slice(0, -1).map(q => q.children.length).join('.');
   this.textDisplay = `${hashs} ${indents}${digits}) ${this.textRaw}`;
 }
-function printGitHubList(this: ISortable): void {
+function printGitHubList(this: IPrintGitHubList): void {
   this.textDisplay = `${cfg.get<string>(cfg.KeyEnum.writeListIndent).repeat(this.level)}- ${this.textRaw}`;
 }

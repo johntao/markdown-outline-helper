@@ -7,7 +7,7 @@ import * as ut from '../../utils';
 suite('Utils print tree', () => {
   vscode.window.showInformationMessage('Start all tests.');
   test('Print tree', () => {
-    const root: tn.IPrintable = {
+    const root: tn.IPrintRecur = {
       textDisplay: '',
       children: [
         {
@@ -70,7 +70,7 @@ suite('Utils print tree', () => {
   });
 });
 suite('Utils parse tree', () => {
-  const root: tn.ISortable = tn.treeNodeFactory('LogSeqList');
+  const root: tn.ITreeNode = tn.treeNodeFactory('LogSeqList');
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;
@@ -192,7 +192,7 @@ suite('Utils parse tree', () => {
   });
 });
 suite('Utils sort special cases (print hierarchy)', () => {
-  const root: tn.ISortable = tn.treeNodeFactory('LogSeqList');
+  const root: tn.ITreeNode = tn.treeNodeFactory('LogSeqList');
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;
@@ -264,7 +264,7 @@ suite('Utils sort special cases (print hierarchy)', () => {
   });
 });
 suite('Utils sort special cases (print flat)', () => {
-  const root: tn.ISortable = tn.treeNodeFactory('LogSeqFlatList');
+  const root: tn.ITreeNode = tn.treeNodeFactory('LogSeqFlatList');
   const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
   setup(() => {
     root.level = -1;

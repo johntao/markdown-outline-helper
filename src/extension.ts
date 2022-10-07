@@ -38,7 +38,7 @@ function getNewRangeRefreshConfig(app: vscode.TextEditor, startDir: SearchDirect
 
 function editRange(kind: tn.TreeNodeTypes, app: vscode.TextEditor, newRng: vscode.Range): (editBuilder: vscode.TextEditorEdit) => void {
   return ed => {
-    const root: tn.ISortable = tn.treeNodeFactory(kind);
+    const root: tn.ITreeNode = tn.treeNodeFactory(kind);
     const itrCtxt: ut.ItrContext = new ut.ItrContext(root);
     ut.parseTreeFromLines([...readLines(app, newRng.start.line, newRng.end.line)], itrCtxt);
     const text = ut.printTree(root);
@@ -49,7 +49,11 @@ function editRange(kind: tn.TreeNodeTypes, app: vscode.TextEditor, newRng: vscod
 
 function peekRangeGetKind(app: vscode.TextEditor, newRng: vscode.Range): tn.TreeNodeTypes {
   const txt = app.document.lineAt(newRng.start.line).text.trimStart();
-  return txt.startsWith('#') ? 'GitHubHeadingToList' : 'GitHubListToHeading';
+  switch (txt[0]) {
+    case '#': return 'GitHubHeadingToList';
+    case '-': return 'GitHubListToHeading';
+    default: throw new Error(`Unknown prefix type "${txt[0]}"!`);
+  }
 }
 
 function adjustRange(app: vscode.TextEditor, searchDirection: SearchDirection, position: vscode.Position): vscode.Range {

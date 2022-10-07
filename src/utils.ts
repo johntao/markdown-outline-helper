@@ -6,52 +6,56 @@ interface ReturnString {
   result: string
 }
 export class ItrContext {
-  constructor(root: tn.ISortable) {
+  constructor(root: tn.ITreeNode) {
     this.nodeStack = [root];
     this.sortLevel = cfg.get<number>(cfg.KeyEnum.sortStartLevel) - 1; // -1 based, root start from -1
     const sortOrder = cfg.get<string>(cfg.KeyEnum.sortOrder);
     this.sortFunction = sortOrder === 'ASC' ? textSortASC : textSortDESC;
   }
-  nodeStack: tn.ISortable[];
+  nodeStack: tn.ITreeNode[];
   prevLevel = -1;
   sortLevel = -1;
-  sortFunction: (q: tn.ISortable, w: tn.ISortable) => number;
+  sortFunction: (q: tn.ICanSort, w: tn.ICanSort) => number;
   get parent() { return this.nodeStack.at(-1)!; }
   get siblings() { return this.parent.children; }
 }
-export function isSortable(siblings: tn.IPrintable[]): siblings is tn.ISortable[] {
-  const node = siblings[0];
-  return (node as tn.ISortable).textSort !== undefined;
-}
-const textSortASC = (q: tn.ISortable, w: tn.ISortable): number => q ? q.textSort.localeCompare(w.textSort) : -1;
-const textSortDESC = (q: tn.ISortable, w: tn.ISortable): number => q ? w.textSort.localeCompare(q.textSort) : -1;
+
+const textSortASC = (q: tn.ICanSort, w: tn.ICanSort): number => q ? q.textSort.localeCompare(w.textSort) : -1;
+const textSortDESC = (q: tn.ICanSort, w: tn.ICanSort): number => q ? w.textSort.localeCompare(q.textSort) : -1;
 function parseTreeIterator(this: ItrContext, line: string): void {
   const kind = this.nodeStack[0].kind;
   const nextNode = tn.treeNodeFactory(kind);
   nextNode.setLevelAndRawText(line);
   let cnt = 0;
   while (++cnt && nextNode.level <= this.prevLevel && this.sortLevel <= this.prevLevel--) {
-    if (cnt > 1 && isSortable(this.siblings)) {
+    if (isSiblingsAddedComplete()) {
       this.siblings.sort(this.sortFunction);
     }
     this.nodeStack.pop();
   }
   this.siblings.push(nextNode);
   this.nodeStack.push(nextNode);
-  nextNode.setDisplayText(this.nodeStack);
+  nextNode.parentsAndSelf.push(...this.nodeStack);
+  nextNode.setDisplayText();
   this.prevLevel = nextNode.level;
+  function isSiblingsAddedComplete() {
+    return cnt > 1;
+  }
 }
 export function parseTreeFromLines(lines: string[], ctxt: ItrContext): void {
   lines.forEach(parseTreeIterator, ctxt);
   const children = ctxt.nodeStack[0].children;
-  if (ctxt.sortLevel === -1 && isSortable(children)) {
+  if (doSortRootChildren()) {
     children.sort(ctxt.sortFunction);
+  }
+  function doSortRootChildren() {
+    return ctxt.sortLevel === -1;
   }
 }
 export function parseTreeFromText(txt: string, ctxt: ItrContext): void {
   parseTreeFromLines(txt.split('\n'), ctxt);
 }
-export function printTreeRecur(node: tn.IPrintable, rtn: ReturnString = { result: '' }): string {
+export function printTreeRecur(node: tn.IPrintRecur, rtn: ReturnString = { result: '' }): string {
   if (node.textDisplay) {
     // console.log('' + node);
     rtn.result += node.textDisplay + '\n';
@@ -61,9 +65,9 @@ export function printTreeRecur(node: tn.IPrintable, rtn: ReturnString = { result
   }
   return rtn.result;
 }
-export function printTree(root: tn.IPrintable, rtn = ''): string {
+export function printTree(root: tn.IPrintRecur, rtn = ''): string {
   const mainStack = [root];
-  let depthFirst, reverseOrder: tn.IPrintable | undefined;
+  let depthFirst, reverseOrder: tn.IPrintRecur | undefined;
   while (mainStack.length) {
     depthFirst = mainStack.pop()!;
     if (depthFirst.textDisplay) {
