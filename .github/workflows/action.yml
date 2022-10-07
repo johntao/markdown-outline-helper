@@ -1,4 +1,4 @@
-name: github-action
+name: Build and Test
 on:
   push:
     branches:
