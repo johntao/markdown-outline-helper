@@ -26,8 +26,8 @@ function parseTreeIterator(this: ItrContext, line: string): void {
   const kind = this.nodeStack[0].kind;
   const nextNode = tn.treeNodeFactory(kind);
   nextNode.setLevelAndRawText(line);
-  let cnt = 0;
-  while (++cnt && nextNode.level <= this.prevLevel && this.sortLevel <= this.prevLevel--) {
+  let cntLevelPopped = 0;
+  while (nextNode.level <= this.prevLevel && this.sortLevel <= this.prevLevel-- && ++cntLevelPopped) {
     if (isSiblingsAddedComplete()) {
       this.siblings.sort(this.sortFunction);
     }
@@ -39,7 +39,7 @@ function parseTreeIterator(this: ItrContext, line: string): void {
   nextNode.setDisplayText();
   this.prevLevel = nextNode.level;
   function isSiblingsAddedComplete() {
-    return cnt > 1;
+    return cntLevelPopped > 1;
   }
 }
 export function parseTreeFromLines(lines: string[], ctxt: ItrContext): void {
